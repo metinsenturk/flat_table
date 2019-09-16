@@ -1,47 +1,81 @@
 from functools import reduce
+from itertools import chain
 import pandas as pd
 
 
-def normalize_object(series):
-    result = [{"index": ind, series.name: item} for ind, item in series.iteritems()]
-    return pd.DataFrame(result)
+def get_list_obj(df_list):
+    column_name = df_list.name
+    df_list = df_list.reset_index()
+    
+    df_list = df_list.apply(lambda x: [{'index': x['index'], column_name: ins} for ins in x[column_name]], axis=1)
+    return pd.DataFrame(list(chain(*df_list))) 
 
 
-def normalize_dict(series):
-    [item.update({"index": ind}) for ind, item in series.iteritems()]
-    return pd.io.json.json_normalize(series)
+def get_list_dict(df_list):
+    column_name = df_list.name
+    df_list = df_list.reset_index()
+    
+    df_list.apply(lambda x: [ins.update({'index': x['index']}) for ins in x[column_name]], axis=1)
+    # pd.DataFrame(list(chain(*df_list.family)))
+    return pd.io.json.json_normalize(list(chain(*df_list[column_name])))
 
 
-def normalize_list_old(series):
-    result = []
-    for in_ind, seri_item in series.iteritems():
-        [item.update({"index": in_ind}) for item in seri_item]
-        result.extend(seri_item)
-    return pd.DataFrame(result)
+def get_list_list(df_list):
+    temp = get_list_obj(df_list)
+    temp.index = temp['index'].values
+    temp.drop('index', inplace=True, axis=1)
+    return temp.iloc[:,0]
 
 
-def normalize_list(list_object, name="None", index="None"):
-    result = []
-    for item in list_object:
-        if type(item) == list:
-            normalize_list(item, name, index)
-        elif type(item) == dict:
-            item.update({"index": index})
-            result.append(item)
-        else:
-            result.append({"index": index, name: item})
-    print(result)
-    return reduce(lambda x, y: pd.merge(x, y, on="index"), pd.DataFrame(result))
+def get_column_list(series):
+    inside = series.apply(lambda x: [type(i) for i in x][0]).iloc[0]
+    print(series.name, inside)
+    if inside == list:
+        temp = get_list_list(series)
+        return get_column_list(temp)
+    elif inside == dict:
+        return get_list_dict(series)
+    else:
+        return get_list_obj(series)
+
+
+def get_column_obj(series):
+    df_obj = series.reset_index()
+    return df_obj
+
+
+def get_column_dict(series):
+    df_dict = pd.io.json.json_normalize(series)
+    df_dict['index'] = series.index
+    return df_dict
+
+
+def reset_index(dataframe):
+    temp = dataframe
+    temp.index = temp['index'].values
+    temp.drop('index', inplace=True, axis=1)
+    return temp
 
 
 def normalize(dataframe):
     result = []
     for name, seri in dataframe.iteritems():
-        if any(seri.apply(lambda x: type(x) == dict)):
-            result.append(normalize_dict(seri))
-        elif any(seri.apply(lambda x: type(x) == list)):
-            result.append(normalize_list(seri))
+        inside = seri.apply(lambda x: type(x)).iloc[0]
+        if inside == list:
+            print('normalizing:: ', name, inside)
+            temp = get_column_list(seri)
+            temp = reset_index(temp)
+            op = normalize(temp)
+            result.extend(op)
+        elif inside == dict:
+            print('normalizing:: ', name, inside)
+            temp = get_column_dict(seri)
+            temp = reset_index(temp)
+            op = normalize(temp)
+            result.extend(op)
         else:
-            result.append(normalize_object(seri))
-    return reduce(lambda x, y: pd.merge(x, y, on="index"), result)
-
+            temp = get_column_obj(seri)
+            #print(temp.columns.values)
+            result.append(temp)
+            # print(len(result))
+    return reduce(lambda x, y: pd.merge(x, y, on="index", copy=False), result)
