@@ -11,7 +11,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.INFO,
     handlers=[
-        logging.FileHandler("{0}/{1}.log".format('logs',now.strftime(r"%y-%m-%d-%H%M"))),
+        # logging.FileHandler("{0}/{1}.log".format('logs',now.strftime(r"%y-%m-%d-%H%M"))),
         logging.StreamHandler()
     ])
 
@@ -84,20 +84,20 @@ def normalize(dataframe):
         # case if it is list -- expand rowwise
         if inside == list:
             temp = get_obj(seri)
-            logger.info(f'expanding:: , {_name}, {inside}')
+            logger.info(f'expanding:: , {_name}, {inside} ==> seri: {seri.shape} temp: {temp.shape}')
             assert type(temp) == pd.Series
             series_list.append((_name, temp))
 
         # case if it is dict -- expand columnwise
         elif inside == dict:
             temp = get_column_dict(seri)
-            logger.info(f'normalizing:: , {_name}, {inside}, normalized: {temp.shape}')
+            logger.info(f'normalizing:: , {_name}, {inside} ==> seri: {seri.shape} temp: {temp.shape}')
             if len(temp) > 1:
                 assert type(temp) == pd.DataFrame
                 series_list.extend(list(temp.iteritems()))
             else:
                 assert type(temp) == pd.Series
-                series_list.append(temp)
+                series_list.append((_name, temp))
 
         # case of all others
         else:
@@ -108,3 +108,5 @@ def normalize(dataframe):
 
     logger.info(f'exports :: , {len(result)}')
     logger.info([len(i) for i in result])
+
+    return result
