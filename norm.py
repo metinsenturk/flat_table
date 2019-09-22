@@ -9,9 +9,9 @@ now = datetime.datetime.now()
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO,
+    level=logging.WARNING,
     handlers=[
-        # logging.FileHandler("{0}/{1}.log".format('logs',now.strftime(r"%y-%m-%d-%H%M"))),
+        logging.FileHandler("{0}/{1}.log".format('logs',now.strftime(r"%y-%m-%d-%H%M"))),
         logging.StreamHandler()
     ])
 
@@ -23,27 +23,18 @@ def get_list_obj(series):
     ds = series.copy()
     df = ds.reset_index()
     data = df.apply(
-        lambda x: [{'index': x['index'], ds.name: ins} for ins in x[ds.name]], 
+        lambda x: [{'index': x['index'], ds.name: ins} for ins in x[ds.name]],
         axis=1
     )
     df = pd.DataFrame(list(chain(*data)))
-    
-    return set_index(df).iloc[:,0]
+
+    return set_index(df).iloc[:, 0]
 
 
-def get_column_obj(series):
+def to_index(series):
     """ returns dataframe with index and the series.name """
     df_obj = series.reset_index()
     return df_obj
-
-
-def get_column_dict(series, create_index=True):
-    """ returns dataframe of normalized dictionary object """
-    ds = series.copy()
-    df = pd.io.json.json_normalize(ds)
-    if create_index:
-        df.index = ds.index
-    return df
 
 
 def set_index(df_or_ds, index_values=None):
@@ -57,7 +48,17 @@ def set_index(df_or_ds, index_values=None):
     return temp
 
 
-def get_obj(series):
+def to_columns(series, create_index=True):
+    """ returns dataframe of normalized dictionary object """
+    ds = series.copy()
+    df = pd.io.json.json_normalize(ds)
+    if create_index:
+        df.index = ds.index
+    return df
+
+
+def to_rows(series):
+    """ gets the object from a list in a series """
     ds = series
     while True:
         ds = get_list_obj(ds)
@@ -65,48 +66,51 @@ def get_obj(series):
         logger.info(f'<Trial #  type: {inside} , len: {len(ds)}>')
         if inside != list:
             break
-    
+
     return ds
 
 
-def normalize(dataframe):
-    result = []
+def print_parent_child_node(parent: str, child: pd.Series):
+    """ shows parent child relation btw columns and their values """
+    logger.info('{:20} {:20} {:15} {:10}'.format(
+        parent, child.name, get_type(child), str(child.shape)))
 
-    # get all series
-    series_list = list(dataframe.iteritems())
-    logger.info(f'series_list length:: current: {len(series_list)}')
 
-    # iterate through each column/ series
-    for _name, seri in series_list:
-        # type of the object of series' values
-        inside = seri.apply(lambda x: type(x)).iloc[0]
+def get_type(child):
+    """ get type of the values of the dataseries object """
+    return child.apply(lambda x: type(x)).iloc[0].__name__
 
-        # case if it is list -- expand rowwise
+
+def mapper(df):
+    """ maps the relationship rowwise and columnwise expansion. """
+    headers = ['parent', 'child', 'type', 'obj']
+    series_list = [('.', n, get_type(s), s) for n, s in df.iteritems()]
+
+    for ind, (parent, name, typ, child) in enumerate(series_list):
+        inside = child.apply(lambda x: type(x)).iloc[0]
+
+        # parent child nodes '.' level
+        print_parent_child_node(parent, child)
+
+        # expand rowwise, add new series for processing
         if inside == list:
-            temp = get_obj(seri)
-            logger.info(f'expanding:: , {_name}, {inside} ==> seri: {seri.shape} temp: {temp.shape}')
-            assert type(temp) == pd.Series
-            series_list.append((_name, temp))
+            _child = to_rows(child)
+            series_list.insert(
+                ind + 1, (name, _child.name, get_type(_child), _child))
+            print_parent_child_node(name, _child)
 
-        # case if it is dict -- expand columnwise
-        elif inside == dict:
-            temp = get_column_dict(seri)
-            logger.info(f'normalizing:: , {_name}, {inside} ==> seri: {seri.shape} temp: {temp.shape}')
-            if len(temp) > 1:
-                assert type(temp) == pd.DataFrame
-                series_list.extend(list(temp.iteritems()))
+        # expand columnwise, add new columns for processing
+        if inside == dict:
+            temp = to_columns(child)
+            if temp.shape[1] > 1:
+                for _name, _child in temp.iteritems():
+                    series_list.insert(
+                        ind + 1, (name, _name, get_type(_child), _child))
+                    print_parent_child_node(name, _child)
             else:
-                assert type(temp) == pd.Series
-                series_list.append((_name, temp))
+                _child = temp.iloc[:, 0]
+                series_list.insert(
+                    ind + 1, (name, _child.name, get_type(_child), _child))
+                print_parent_child_node(name, _child)
 
-        # case of all others
-        else:
-            temp = get_column_obj(seri)
-            assert type(temp) == pd.DataFrame
-            result.append(temp)
-            logger.info(f'columns added: , {_name}, {inside}, len: {temp.shape}')
-
-    logger.info(f'exports :: , {len(result)}')
-    logger.info([len(i) for i in result])
-
-    return result
+    return pd.DataFrame(data=series_list, columns=headers)

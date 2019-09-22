@@ -1,3 +1,10 @@
+# system folders
 .vscode/
 __pycache__
 .ipynb_checkpoints
+
+# folders
+logs/*
+!logs/.gitkeep
+data/*
+!data/.gitkeep
