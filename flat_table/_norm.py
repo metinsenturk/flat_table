@@ -1,36 +1,25 @@
 #!/usr/bin/python3
+import logging
 from functools import reduce
 from itertools import chain
+
 import pandas as pd
-import datetime
-import logging
-import os
 
-now = datetime.datetime.now()
-dirname = os.path.dirname(os.path.realpath('__file__'))
-logfile = "{0}/{1}/{2}.log".format(dirname, 'logs', now.strftime(r"%y-%m-%d-%H%M"))
+__all__ = ['mapper', 'normalize']
 
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO,
-    handlers=[
-        logging.FileHandler(filename=logfile, mode='a+'),
-        logging.StreamHandler()
-    ])
-
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('flat_table').addHandler(logging.NullHandler())
 
 
-def get_list_obj(series):
+def get_obj_from_iterable(series):
     """ returns a dataseries of given series object. expands by the rows  """
     ds = series.copy()
     df = ds.reset_index()
     data = df.apply(
         lambda x: [
-            {'index': x['index'], ds.name: ins} 
+            {'index': x['index'], ds.name: ins}
             for ins in x[ds.name]
-        ] 
-        if type(x[ds.name]) == list 
+        ]
+        if type(x[ds.name]) == list
         else [{'index': x['index'], ds.name: x[ds.name]}],
         axis=1
     )
@@ -66,7 +55,8 @@ def to_columns(series):
 
     # rows with nans
     ds_withnans = ds[pd.isna(ds)]
-    df_withnans = pd.DataFrame(columns=df_withvalues.columns, index=ds_withnans.index)
+    df_withnans = pd.DataFrame(
+        columns=df_withvalues.columns, index=ds_withnans.index)
 
     # concat both
     df = pd.concat([df_withvalues, df_withnans]).sort_index()
@@ -77,7 +67,7 @@ def to_rows(series):
     """ gets the object from a list in a series """
     ds = series
     while True:
-        ds = get_list_obj(ds)
+        ds = get_obj_from_iterable(ds)
         inside = ds.apply(lambda x: type(x)).iloc[0]
         logger.info(f'<Trial #  type: {inside} , len: {len(ds)}>')
         if inside != list:
@@ -100,18 +90,25 @@ def get_type(child):
         typ = df.apply(lambda x: type(x)).iloc[0].__name__
     else:
         typ = type(pd.np.nan).__name__
-    
+
     return typ
 
 
 def mapper(df):
-    """ maps the relationship rowwise and columnwise expansion. """
+    """ 
+    Maps the relationship rowwise and columnwise expansion. 
+
+    Params:
+    ------------
+    df : a pandas dataframe object of your dataset.
+    """
     headers = ['parent', 'child', 'type', 'obj']
     series_list = [('.', n, get_type(s), s) for n, s in df.iteritems()]
 
-    for ind, (parent, name, typ, child) in enumerate(series_list):
+    for ind, (parent, name, _, child) in enumerate(series_list):
         inside = get_type(child)
-        name = ''.join([parent, name]) if parent == '.' else '.'.join([parent, name])
+        name = ''.join([parent, name]) if parent == '.' else '.'.join(
+            [parent, name])
 
         # parent child nodes '.' level
         print_parent_child_node(parent, child)
@@ -140,18 +137,37 @@ def mapper(df):
     return pd.DataFrame(data=series_list, columns=headers)
 
 
-def normalize(df):
-    """ normalize rows and columns of a given dataframe """
+def normalize(df, is_mapper=False):
+    """ 
+    Normalize rows and columns of a given dataframe. 
+
+    Params:
+    ------------
+    df : a pandas dataframe object. It can be your dataframe of
+        your dataset, or the output of the mapper() function.
+    is_mapper : a boolean to set if you want to use mapper() 
+        function's dataframe.
+    """
+    # func init
+    if is_mapper:
+        headers = ['parent', 'child', 'type', 'obj']
+        if all(df.columns != headers):
+            raise Exception('Dataframe is not a type of mapper.')
+        _df = df
+    else:
+        _df = mapper(df)
+
     dfs = []
     rts = []
-    dataframe = df[(df.type != 'dict') & (df.type != 'list')]
+    dataframe = _df[(_df.type != 'dict') & (_df.type != 'list')]
+
     # final packing for list type childs  (concat)
     for parent in dataframe.parent.unique():
         group = dataframe[dataframe.parent.isin([parent])]
         df_group = pd.concat([i for i in group.obj], axis=1)
         dfs.append(df_group)
         logger.info('{:40} before: {:7} after: {:7} obj.shape: {:7} columns: {}'.format(
-            parent, 
+            parent,
             str(group.shape),
             str(df_group.shape),
             str(group.obj.iloc[0].shape),
@@ -162,4 +178,4 @@ def normalize(df):
     for _df in dfs:
         rts.append(to_index(_df))
 
-    return reduce(lambda x,y: pd.merge(x, y, on='index'), rts)
+    return reduce(lambda x, y: pd.merge(x, y, on='index'), rts)
