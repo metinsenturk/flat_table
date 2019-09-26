@@ -1,6 +1,6 @@
 ## Flat-Table: Dictionary and List Normalizer
 
-This codebase is a normalizer for [pandas](https://pandas.pydata.org/) dataframe objects that has dictionary or list objects within it's columns. The library will expand all of the columns that has data types in (list, dict) into individual seperate rows and columns.
+This package is a normalizer for [pandas](https://pandas.pydata.org/) dataframe objects that has dictionary or list objects within it's columns. The library will expand all of the columns that has data types in (list, dict) into individual seperate rows and columns.
 
 ### To Install
 
@@ -53,7 +53,11 @@ For the above table, the flatten table after applying `flat_table.normalize` wil
 
 ### How it Works?
 
-Basically, `flat_table` will look for each of the series in a dataframe to understand what type of data it contains. For every series, it creates a list of information on how to expand it. It will go into all dictionaries and all lists in all levels and expand them as rows and columns. If you want to see how the columns are mapped, you can use `flat_table.mapper` function to get all information about your columns in your original dataframe. For example, for the above table, the mapper function will provide the following table.
+Basically, `flat_table` will look for each of the series in a dataframe to understand what type of data it contains. 
+
+For every series, it creates a list of information on how to expand it. It will go into all dictionaries and all lists in all levels and expand them as rows and columns. Dictionary `keys` will be used for column names, and The `index` of the giden dataframe will be used for row expansion.
+
+If you want to see how the columns are mapped, you can use `flat_table.mapper` function to get all information about your columns in your original dataframe. For example, for the above table, the mapper function will provide the following table.
 
 |    | parent           | child         | type   | obj    |
 |---:|:-----------------|:--------------|:-------|:-------|
