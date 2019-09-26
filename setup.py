@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
-with open('README.md', 'r') as file:
-    long_description = file.read()
+with open('README.md', 'r') as f:
+    long_description = f.read()
 
 setup(
     name='flat_table',
@@ -11,6 +11,8 @@ setup(
     description='A broader implementation of json_normalize()',
     author='Metin Senturk',
     author_email='metinsenturk@me.com',
+    url='https://github.com/metinsenturk/flat_table'
+    keywords=['pandas', 'json_normalize', 'dict_to_columns', 'flatten']
     long_description=long_description,
     install_requires=[
         'pandas'
