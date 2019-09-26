@@ -1,7 +1,7 @@
 from ._norm import mapper
 from ._norm import normalize
+from ._version import version
 
-version = '1.0.0'
 
 __doc__ = """
 A tool to flat dataframes in rowwise and columnwise.

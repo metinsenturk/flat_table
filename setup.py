@@ -5,14 +5,14 @@ with open('README.md', 'r') as f:
 
 setup(
     name='flat_table',
-    version='1.0.0',
+    version='1.0.1',
     packages=['flat_table'],
     license='MIT',
     author='Metin Senturk',
     author_email='metinsenturk@me.com',
     url='https://github.com/metinsenturk/flat_table',
     keywords=['pandas', 'json_normalize', 'dict_to_columns', 'flatten'],
-    description='A broader implementation of json_normalize()',
+    description='A broader implementation of pandas json_normalize function.',
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=[
