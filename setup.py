@@ -5,7 +5,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='flat_table',
-    version='1.0.1',
+    version='1.0.0',
     packages=['flat_table'],
     license='MIT',
     author='Metin Senturk',
