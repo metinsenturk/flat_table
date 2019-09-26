@@ -64,7 +64,7 @@ Basically, `flat_table` will look for each of the series in a dataframe to under
 
 ## Licence
 
-Licence is use it at your own will, with whatever way you want it to use ;).
+Licence is use it at your own will, with whatever way you want it to use :smiley:. Anyways, Licence is in [here](./LICENCE).
 
 ## Author
 
