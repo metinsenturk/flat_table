@@ -7,7 +7,7 @@ import pandas as pd
 
 __all__ = ['mapper', 'normalize']
 
-logger = logging.getLogger('flat_table').addHandler(logging.NullHandler())
+logger = logging.getLogger('flat_table')
 
 
 def get_obj_from_iterable(series):
