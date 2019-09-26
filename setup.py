@@ -5,7 +5,7 @@ with open('README.md', 'r') as file:
 
 setup(
     name='flat_table',
-    version='1.0.1',
+    version='1.0.0',
     packages=find_packages(),
     license='Creative Commons Attribution-Noncommercial-Share Alike license',
     description='A broader implementation of json_normalize()',
