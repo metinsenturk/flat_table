@@ -2,6 +2,14 @@
 
 This codebase is a normalizer for dataframe objects that has objects within it's columns. The library will expand all of the columns that has data types in (list, dict) into individual seperate rows and columns.
 
+### To Install
+
+To install, use pip.
+
+```
+pip install flat_table
+```
+
 ### How to Use It
 
 From a given pandas dataframe, the `index` of the dataframe will be used to create seperate columns and rows. 

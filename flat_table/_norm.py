@@ -95,8 +95,8 @@ def get_type(child):
 
 
 def mapper(df):
-    """ 
-    Maps the relationship rowwise and columnwise expansion. 
+    """
+    Maps the relationship rowwise and columnwise expansion.
 
     Params:
     ------------
@@ -138,14 +138,14 @@ def mapper(df):
 
 
 def normalize(df, is_mapper=False):
-    """ 
-    Normalize rows and columns of a given dataframe. 
+    """
+    Normalize rows and columns of a given dataframe.
 
     Params:
     ------------
     df : a pandas dataframe object. It can be your dataframe of
         your dataset, or the output of the mapper() function.
-    is_mapper : a boolean to set if you want to use mapper() 
+    is_mapper : a boolean to set if you want to use mapper()
         function's dataframe.
     """
     # func init
@@ -166,7 +166,7 @@ def normalize(df, is_mapper=False):
         group = dataframe[dataframe.parent.isin([parent])]
         df_group = pd.concat([i for i in group.obj], axis=1)
         dfs.append(df_group)
-        logger.info('{:40} before: {:7} after: {:7} obj.shape: {:7} columns: {}'.format(
+        logger.info('{:40} before: {:7} after: {:7} obj: {:7} col: {}'.format(
             parent,
             str(group.shape),
             str(df_group.shape),
