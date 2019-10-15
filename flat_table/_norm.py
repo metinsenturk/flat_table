@@ -107,37 +107,45 @@ def mapper(df):
 
     for ind, (parent, name, _, child) in enumerate(series_list):
         inside = get_type(child)
-        name = ''.join([parent, name]) if parent == '.' else '.'.join(
-            [parent, name])
+
+        # parent name
+        if parent == '.' or parent == '':
+            parent_name = name
+        else:
+            parent_name = '.'.join([parent, name])
 
         # parent child nodes '.' level
         print_parent_child_node(parent, child)
 
+        def insert_to_series(p_name, child):
+            """ helper to insert child into series_list. """
+            if p_name == '.' or p_name == '':
+                c_name = child.name
+            else:
+                c_name = '.'.join((p_name, child.name))
+            series_list.insert(
+                ind + 1, (p_name, c_name, get_type(_child), _child))
+            print_parent_child_node(p_name, _child)
+
         # expand rowwise, add new series for processing
         if inside == 'list':
             _child = to_rows(child)
-            series_list.insert(
-                ind + 1, (name, _child.name, get_type(_child), _child))
-            print_parent_child_node(name, _child)
+            insert_to_series('', _child)
 
         # expand columnwise, add new columns for processing
         if inside == 'dict':
             temp = to_columns(child)
             if temp.shape[1] > 1:
                 for _name, _child in temp.iteritems():
-                    series_list.insert(
-                        ind + 1, (name, _name, get_type(_child), _child))
-                    print_parent_child_node(name, _child)
+                    insert_to_series(parent_name, _child)
             else:
                 _child = temp.iloc[:, 0]
-                series_list.insert(
-                    ind + 1, (name, _child.name, get_type(_child), _child))
-                print_parent_child_node(name, _child)
+                insert_to_series(parent_name, _child)
 
     return pd.DataFrame(data=series_list, columns=headers)
 
 
-def normalize(df, is_mapper=False):
+def normalize(df, expand_dicts=True, expand_lists=True, is_mapper=False):
     """
     Normalize rows and columns of a given dataframe.
 
