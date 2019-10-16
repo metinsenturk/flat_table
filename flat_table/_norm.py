@@ -171,7 +171,6 @@ def normalize(df, expand_dicts=True, expand_lists=True, is_mapper=False):
         dataframe = mp[(mp.type != 'dict') & (mp.type != 'list')]
     # dicts expand, lists are same
     elif expand_dicts and not expand_lists:
-        print('dict True list False')
         org_df = mp[mp.parent == '.']
         dict_items = org_df[org_df.type == 'dict'].child
         final_dict_items = mp[mp.parent.isin(dict_items)]
@@ -179,7 +178,6 @@ def normalize(df, expand_dicts=True, expand_lists=True, is_mapper=False):
         dataframe = pd.concat([final_dict_items, final_others]).sort_index()
     # dicts are same, lists expand
     elif not expand_dicts and expand_lists:
-        print('dict False list True')
         org_df = mp[mp.parent == '.']
         list_items = mp[mp.type == 'list'].child
         final_list_items = mp[
