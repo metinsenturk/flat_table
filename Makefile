@@ -19,5 +19,8 @@ cleanup:
 package_it:
 	python setup.py sdist bdist_wheel
 
-publist_to:
+publish_to_test:
 	twine upload -r pypitest dist/*
+
+publish_to_pypi:
+	twine upload -r pypi dist/*
