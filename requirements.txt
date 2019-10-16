@@ -1,10 +1,16 @@
 appnope==0.1.0
 attrs==19.2.0
+autopep8==1.4.4
 backcall==0.1.0
 bleach==3.1.0
+certifi==2019.9.11
+chardet==3.0.4
 decorator==4.4.0
 defusedxml==0.6.0
+docutils==0.15.2
 entrypoints==0.3
+-e git+https://github.com/metinsenturk/flat_table.git@4ad7554d7993422f6b3b50c38163f6a91d907b5c#egg=flat_table
+idna==2.8
 importlib-metadata==0.23
 ipykernel==5.1.2
 ipython==7.8.0
@@ -32,6 +38,7 @@ pandocfilters==1.4.2
 parso==0.5.1
 pexpect==4.7.0
 pickleshare==0.7.5
+pkginfo==1.5.0.1
 prometheus-client==0.7.1
 prompt-toolkit==2.0.10
 ptyprocess==0.6.0
@@ -42,12 +49,19 @@ python-dateutil==2.8.0
 pytz==2019.3
 pyzmq==18.1.0
 qtconsole==4.5.5
+readme-renderer==24.0
+requests==2.22.0
+requests-toolbelt==0.9.1
 Send2Trash==1.5.0
 six==1.12.0
+tabulate==0.8.5
 terminado==0.8.2
 testpath==0.4.2
 tornado==6.0.3
+tqdm==4.36.1
 traitlets==4.3.3
+twine==2.0.0
+urllib3==1.25.6
 wcwidth==0.1.7
 webencodings==0.5.1
 widgetsnbextension==3.5.1
