@@ -15,3 +15,9 @@ cleanup:
 	rm -rf dist
 	rm -rf *.egg-info
 	@echo "done!"
+
+package_it:
+	python setup.py sdist bdist_wheel
+
+publist_to:
+	twine upload -r pypitest dist/*
