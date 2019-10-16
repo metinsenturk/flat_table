@@ -117,12 +117,13 @@ def mapper(df):
         # parent child nodes '.' level
         print_parent_child_node(parent, child)
 
-        def insert_to_series(p_name, child):
+        def insert_to_series(p_name, _child):
             """ helper to insert child into series_list. """
             if p_name == '.' or p_name == '':
-                c_name = child.name
+                c_name = _child.name
             else:
-                c_name = '.'.join((p_name, child.name))
+                c_name = '.'.join((p_name, _child.name))
+            _child = _child.rename(c_name)
             series_list.insert(
                 ind + 1, (p_name, c_name, get_type(_child), _child))
             print_parent_child_node(p_name, _child)
@@ -161,15 +162,38 @@ def normalize(df, expand_dicts=True, expand_lists=True, is_mapper=False):
         headers = ['parent', 'child', 'type', 'obj']
         if all(df.columns != headers):
             raise Exception('Dataframe is not a type of mapper.')
-        _df = df
+        mp = df
     else:
-        _df = mapper(df)
+        mp = mapper(df)
 
-    dfs = []
-    rts = []
-    dataframe = _df[(_df.type != 'dict') & (_df.type != 'list')]
+    # option settings
+    if expand_dicts and expand_lists:
+        dataframe = mp[(mp.type != 'dict') & (mp.type != 'list')]
+    # dicts expand, lists are same
+    elif expand_dicts and not expand_lists:
+        print('dict True list False')
+        org_df = mp[mp.parent == '.']
+        dict_items = org_df[org_df.type == 'dict'].child
+        final_dict_items = mp[mp.parent.isin(dict_items)]
+        final_others = org_df[org_df.type != 'dict']
+        dataframe = pd.concat([final_dict_items, final_others]).sort_index()
+    # dicts are same, lists expand
+    elif not expand_dicts and expand_lists:
+        print('dict False list True')
+        org_df = mp[mp.parent == '.']
+        list_items = mp[mp.type == 'list'].child
+        final_list_items = mp[
+            (mp.parent.isin(list_items) | mp.child.isin(list_items))
+            & ~mp.type.isin(['dict', 'list'])]
+        final_others = org_df[org_df.type != 'list']
+        dataframe = pd.concat([final_list_items, final_others]).sort_index()
+    # original df
+    else:
+        dataframe = mp[mp.parent == '.']
 
     # final packing for list type childs  (concat)
+    dfs = []
+    rts = []
     for parent in dataframe.parent.unique():
         group = dataframe[dataframe.parent.isin([parent])]
         df_group = pd.concat([i for i in group.obj], axis=1)

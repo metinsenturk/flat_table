@@ -1,6 +1,6 @@
-from ._norm import mapper
-from ._norm import normalize
-from ._version import version
+from flat_table._norm import mapper
+from flat_table._norm import normalize
+from flat_table._version import version
 
 
 __doc__ = """
