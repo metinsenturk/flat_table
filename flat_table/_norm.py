@@ -50,7 +50,7 @@ def to_columns(series):
     ds = series.copy()
     # rows with values
     ds_withvalues = ds[pd.notna(ds)]
-    df_withvalues = pd.io.json.json_normalize(ds_withvalues)
+    df_withvalues = pd.json_normalize(ds_withvalues)
     df_withvalues.index = ds_withvalues.index
 
     # rows with nans
