@@ -4,6 +4,7 @@ from functools import reduce
 from itertools import chain
 
 import pandas as pd
+import numpy as np
 
 __all__ = ['mapper', 'normalize']
 
@@ -89,7 +90,7 @@ def get_type(child):
     if len(df) > 0:
         typ = df.apply(lambda x: type(x)).iloc[0].__name__
     else:
-        typ = type(pd.np.nan).__name__
+        typ = type(np.nan).__name__
 
     return typ
 
