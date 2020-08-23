@@ -16,3 +16,4 @@ build
 
 # env
 venv/
+.venv/

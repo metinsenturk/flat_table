@@ -1,6 +1,6 @@
 {
     "python.formatting.provider": "autopep8",
-    "python.pythonPath": "${workspaceFolder}/venv/normenv/bin/python",
+    "python.pythonPath": ".venv/bin/python",
     "python.linting.pylintEnabled": false,
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": false,

@@ -2,7 +2,14 @@ say_hi:
 	@echo "Hi!" $(name)
 
 create_env:
-	python -m venv venv/normenv
+	python -m venv .venv
+
+add_jupyter_kernel:
+	(	\
+		source .venv/bin/activate; \
+		python -m ipykernel install --name flat-table --display-name "Flat Table"; \
+		deactivate; \
+	)
 
 cleanup:
 	@echo "starting to remove cache and build folders.."
