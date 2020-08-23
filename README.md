@@ -2,7 +2,9 @@
 
 This package is a normalizer for [pandas](https://pandas.pydata.org/) dataframe objects that has dictionary or list objects within it's columns. The library will expand all of the columns that has data types in (list, dict) into individual seperate rows and columns.
 
-PS: Flat table will use the current index of the dataframe as an identifier while expanding lists. The output will have an index column of your original dataframe. You can drop it later if you not plan to use it.
+Flat table will use *the current index* of the dataframe as an identifier while expanding lists. The output will have an index column of your original dataframe. You can drop it later if you not plan to use it.
+
+For changes between versions, check out the [changelog](CHANGELOG.md).
 
 ### To Install
 
