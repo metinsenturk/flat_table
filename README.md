@@ -9,7 +9,7 @@ PS: Flat table will use the current index of the dataframe as an identifier whil
 To install, use pip.
 
 ```
-pip install flat-table
+python -m pip install flat-table
 ```
 
 ### How to Use It
@@ -52,9 +52,7 @@ For the above table, the flatten table after applying `flat_table.normalize` wil
 |  2 |       2 | 1003 | female             | nan                     | nan                       | kate                  | marry                  | nan                | new york       |         10001 |
 |  3 |       2 | 1003 | female             | nan                     | nan                       | kate                  | marry                  | nan                | brooklyn       |         10008 |
 
-### New in Version 1.1.0
-
-The expansion for dicts and lists made optional. Now, you can choose to expand list types and dict types with normalize function.
+The expansion for dicts and lists made optional. If not needed, you can choose to expand list types and dict types with normalize function.
 
 ``` python
 flat_table.normalize(df, expand_dicts=False, expand_lists=True)
@@ -71,7 +69,7 @@ Normalized version of df will be following.
 
 ### How it Works?
 
-Basically, `flat_table` will look for each of the series in a dataframe to understand what type of data it contains. 
+`flat_table` will look for each of the series in a dataframe to understand what type of data it contains. 
 
 For every series, it creates a list of information on how to expand it. It will go into all dictionaries and all lists in all levels and expand them as rows and columns. Dictionary `keys` will be used for column names, and The `index` of the giden dataframe will be used for row expansion.
 
@@ -98,4 +96,4 @@ Licence is use it at your own will, with whatever way you want it to use :smiley
 
 ## Author
 
-Build by [@metinsenturk](https://github.com/metinsenturk/)
+Build by [@metinsenturk](https://github.com/metinsenturk/).
