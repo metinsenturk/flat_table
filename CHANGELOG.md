@@ -2,6 +2,10 @@
 
 Changes of things for this package between versions is listed in below.
 
+# 1.1.2 - 2020-08-31
+
+- Added typing hints.
+
 # 1.1.1 - 2020-08-23
 
 - Updated pandas to latest (1.1.1).
