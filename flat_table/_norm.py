@@ -1,4 +1,5 @@
 import logging
+from typing import List, Any, Union
 from functools import reduce
 from itertools import chain
 
@@ -10,7 +11,7 @@ __all__ = ['mapper', 'normalize']
 logger = logging.getLogger('flat_table')
 
 
-def get_obj_from_iterable(series):
+def get_obj_from_iterable(series: pd.Series) -> pd.Series:
     """ returns a dataseries of given series object. expands by the rows  """
     ds = series.copy()
     df = ds.reset_index()
@@ -28,13 +29,13 @@ def get_obj_from_iterable(series):
     return set_index(df).iloc[:, 0]
 
 
-def to_index(series):
+def to_index(series: pd.Series) -> pd.DataFrame:
     """ returns dataframe with index and the series.name """
     df_obj = series.reset_index()
     return df_obj
 
 
-def set_index(df_or_ds, index_values=None):
+def set_index(df_or_ds: Union[pd.DataFrame, pd.Series], index_values: List[Any] = None) -> pd.DataFrame:
     """ utility function to re set indexes in series and dataframes """
     temp = df_or_ds.copy()
     if index_values is None:
@@ -45,7 +46,7 @@ def set_index(df_or_ds, index_values=None):
     return temp
 
 
-def to_columns(series):
+def to_columns(series: pd.Series) -> pd.DataFrame:
     """ returns dataframe of normalized dictionary object """
     ds = series.copy()
     # rows with values
@@ -63,7 +64,7 @@ def to_columns(series):
     return df
 
 
-def to_rows(series):
+def to_rows(series: pd.Series) -> pd.Series:
     """ gets the object from a list in a series """
     ds = series
     while True:
@@ -76,13 +77,13 @@ def to_rows(series):
     return ds
 
 
-def print_parent_child_node(parent: str, child: pd.Series):
+def print_parent_child_node(parent: str, child: pd.Series) -> None:
     """ shows parent child relation btw columns and their values """
     logger.info('{:40} {:20} {:15} {:10}'.format(
         parent, child.name, get_type(child), str(child.shape)))
 
 
-def get_type(child):
+def get_type(child: pd.Series) -> str:
     """ get type of the values of the dataseries object """
     df = child[pd.notna(child)]
     typ = ''
@@ -94,7 +95,7 @@ def get_type(child):
     return typ
 
 
-def mapper(df):
+def mapper(df: pd.DataFrame) -> pd.DataFrame:
     """
     Maps the relationship rowwise and columnwise expansion.
 
@@ -117,7 +118,7 @@ def mapper(df):
         # parent child nodes '.' level
         print_parent_child_node(parent, child)
 
-        def insert_to_series(p_name, _child):
+        def insert_to_series(p_name: str, _child: pd.Series):
             """ helper to insert child into series_list. """
             if p_name == '.' or p_name == '':
                 c_name = _child.name
@@ -146,7 +147,8 @@ def mapper(df):
     return pd.DataFrame(data=series_list, columns=headers)
 
 
-def normalize(df, expand_dicts=True, expand_lists=True, is_mapper=False):
+def normalize(df: pd.DataFrame, expand_dicts: bool = True, expand_lists: bool = True,
+              is_mapper: bool = False) -> pd.DataFrame:
     """
     Normalize rows and columns of a given dataframe.
 
@@ -190,8 +192,8 @@ def normalize(df, expand_dicts=True, expand_lists=True, is_mapper=False):
         dataframe = mp[mp.parent == '.']
 
     # final packing for list type childs  (concat)
-    dfs = []
-    rts = []
+    dfs: List[pd.DataFrame] = []
+    rts: List[pd.DataFrame] = []
     for parent in dataframe.parent.unique():
         group = dataframe[dataframe.parent.isin([parent])]
         df_group = pd.concat([i for i in group.obj], axis=1)
